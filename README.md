@@ -45,18 +45,19 @@ db_backups:
     image: drpancake/postgres-docker-gcs-backup:latest
     depends_on:
       - db
-    networks:
-      - internet
-      - api-internal
     environment:
       SCHEDULE: "@every 6h"
-      POSTGRES_HOST: "database"
+      POSTGRES_HOST: "db"
       POSTGRES_DATABASE: "SomeDatabase"
       POSTGRES_USER: "postgres"
       POSTGRES_PASSWORD: "postgres"
-      GCLOUD_KEYFILE_BASE64: "BASE64_PROJECT_KEYFILE_HERE"
+      GCLOUD_KEYFILE_BASE64: ${GCLOUD_KEYFILE_BASE64}
       GCLOUD_PROJECT_ID: "hello-world"
       GCS_BACKUP_BUCKET: "gs://my-backup-bucket-name"
 ```
 
-**Note:** the `internet` network exists as `api-internal` is an internal network with no connection to the internet. To enable backing up to the cloud, the service has to be on an external network which can access the internet. `api-internal` is the network which the database is on, so that the `database` hostname resolves to that service.
+To get the service account key in the right format:
+
+```
+GCLOUD_KEYFILE_BASE64="`base64 -i my-key.json`"
+```
